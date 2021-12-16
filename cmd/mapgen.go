@@ -6,7 +6,13 @@ package cmd
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"math"
+	"math/rand"
+	"os"
+	"time"
 
 	"github.com/iand/perlin"
 
@@ -14,7 +20,7 @@ import (
 )
 
 var (
-	seed    = 1.0
+	seed    = 1
 	alpha   = 1.08
 	beta    = 0.0
 	octaves = 6
@@ -37,7 +43,8 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("mapgen called")
-		GenerateNoiseMap()
+		noiseMap := GenerateNoiseMap()
+		GenerateHeightMap(noiseMap)
 	},
 }
 
@@ -55,25 +62,56 @@ func init() {
 	// mapgenCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func GenerateNoiseMap() {
+func GenerateNoiseMap() [900][900]float64 {
 
 	mapGen := Map{
-		width:  10,
-		height: 10,
-		scale:  2,
+		width:  900,
+		height: 900,
+		scale:  0.0000025,
 	}
 
-	//var noiseMap [10][10]float64
+	rand.Seed(time.Now().UnixNano())
+	fmt.Println("GenerateNoiseMap")
+
+	var noiseMap [900][900]float64
 
 	for x := 0; x < mapGen.width; x++ {
 		for y := 0; y < mapGen.height; y++ {
 
-			perlinValue := perlin.Noise2D(float64(x), float64(y), int64(seed), alpha, beta, octaves)
+			sampleX := float32(x) / mapGen.scale
+			sampleY := float32(y) / mapGen.scale
+
+			perlinValue := perlin.Noise2D(float64(sampleX), float64(sampleY), rand.Int63(), alpha, beta, octaves)
 			perlinValue = math.Max(0.0, perlinValue)
 			perlinValue = math.Min(1.0, perlinValue)
 
-			//noiseMap[x][y] = perlinValue
-			fmt.Println(perlinValue)
+			noiseMap[x][y] = perlinValue
 		}
+	}
+	return noiseMap
+}
+
+func GenerateHeightMap(noiseMap [900][900]float64) {
+	rect := image.Rect(0, 0, 900, 900)
+	img := image.NewGray16(rect)
+
+	fmt.Println("GenerateHeightMap")
+	for x := 0; x < 900; x++ {
+		for y := 0; y < 900; y++ {
+			val := noiseMap[x][y]
+			col := color.Gray16{uint16(val * 0xffff)}
+			img.Set(x, y, col)
+		}
+	}
+
+	f, err := os.OpenFile("heightmap.png", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	err = png.Encode(f, img)
+	if err != nil {
+		panic(err)
 	}
 }
