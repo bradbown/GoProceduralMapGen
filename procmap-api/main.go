@@ -4,13 +4,18 @@ import (
 	"log"
 
 	"github.com/bradbown/GoProceduralMapGen/database"
+	"github.com/bradbown/GoProceduralMapGen/models"
 	"github.com/bradbown/GoProceduralMapGen/routes"
 	"github.com/gofiber/fiber/v2"
 )
 
+var user models.User
+
 func main() {
 	database.ConnectDb()
 	app := fiber.New()
+
+	routes.FindUser(1, &user)
 
 	setUpRoutes(app)
 
@@ -28,5 +33,5 @@ func setUpRoutes(app *fiber.App) {
 }
 
 func welcome(c *fiber.Ctx) error {
-	return c.SendString("Welcome to my awesome API")
+	return c.SendString("Welcome to my awesome API " + user.FirstName)
 }
