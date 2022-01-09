@@ -30,6 +30,8 @@ func setUpRoutes(app *fiber.App) {
 	app.Get("/api/users/:id", routes.GetUser)
 	app.Put("/api/users/:id", routes.UpdateUser)
 	app.Delete("/api/users/:id", routes.DeleteUser)
+
+	app.Post("/api/maps", routes.CreateNoiseMap)
 }
 
 func welcome(c *fiber.Ctx) error {

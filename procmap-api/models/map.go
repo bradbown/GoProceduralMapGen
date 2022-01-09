@@ -1,7 +1,8 @@
 package models
 
 type Map struct {
-	ID      uint    `json:"id"`
+	ID      uint    `json:"id" gorm:"primaryKey"`
+	UserID  uint    `json:"userID" gorm:"foreignKey"`
 	Seed    uint    `json:"seed"`
 	Alpha   float32 `json:"alpha"`
 	Octaves uint    `json:"octaves"`
