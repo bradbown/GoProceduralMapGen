@@ -17,8 +17,9 @@ type Map struct {
 }
 
 func CreateResponseMap(mapM models.Map) Map {
+
 	return Map{ID: mapM.ID, UserID: mapM.UserID, Name: mapM.Name, Seed: mapM.Seed,
-		Alpha: mapM.Alpha, Octaves: mapM.Octaves, NoiseMap: mapM.NoiseMap}
+		Alpha: mapM.Alpha, Octaves: mapM.Octaves}
 }
 
 func CreateNoiseMap(c *fiber.Ctx) error {
@@ -28,8 +29,16 @@ func CreateNoiseMap(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
+	noiseMap.NoiseMap = GenerateNoiseMap()
+
 	database.Database.Db.Create(&noiseMap)
 	responseMap := CreateResponseMap(noiseMap)
 
 	return c.Status(200).JSON(responseMap)
+}
+
+func GenerateNoiseMap() string {
+
+	//Todo create noise map from values
+	return "test"
 }
