@@ -7,14 +7,18 @@ import (
 )
 
 type Map struct {
-	ID      uint    `json:"id"`
-	Seed    uint    `json:"seed"`
-	Alpha   float32 `json:"alpha"`
-	Octaves uint    `json:"octaves"`
+	ID       uint    `json:"id"`
+	UserID   uint    `json:"user_id"`
+	Name     string  `json:"name"`
+	Seed     uint    `json:"seed"`
+	Alpha    float32 `json:"alpha"`
+	Octaves  uint    `json:"octaves"`
+	NoiseMap string  `json:"noise_map"`
 }
 
 func CreateResponseMap(mapM models.Map) Map {
-	return Map{ID: mapM.ID, Seed: mapM.Seed, Alpha: mapM.Alpha, Octaves: mapM.Octaves}
+	return Map{ID: mapM.ID, UserID: mapM.UserID, Name: mapM.Name, Seed: mapM.Seed,
+		Alpha: mapM.Alpha, Octaves: mapM.Octaves, NoiseMap: mapM.NoiseMap}
 }
 
 func CreateNoiseMap(c *fiber.Ctx) error {
