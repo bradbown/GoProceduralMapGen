@@ -37,6 +37,26 @@ func CreateNoiseMap(c *fiber.Ctx) error {
 	return c.Status(200).JSON(responseMap)
 }
 
+func GetNoiseMapsFromUser(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	noiseMaps := []models.Map{}
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+	database.Database.Db.Find(&noiseMaps, "user_id = ?", id)
+
+	responseMaps := []Map{}
+
+	for _, noiseMap := range noiseMaps {
+		responseMap := CreateResponseMap(noiseMap)
+		responseMaps = append(responseMaps, responseMap)
+	}
+
+	return c.Status(200).JSON(responseMaps)
+}
+
 func GenerateNoiseMap() string {
 
 	//Todo create noise map from values
