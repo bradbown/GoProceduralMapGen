@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"errors"
+
 	"github.com/bradbown/GoProceduralMapGen/database"
 	"github.com/bradbown/GoProceduralMapGen/models"
 	"github.com/gofiber/fiber/v2"
@@ -38,14 +40,14 @@ func CreateNoiseMap(c *fiber.Ctx) error {
 }
 
 func GetNoiseMapsFromUser(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+	user_id, err := c.ParamsInt("user_id")
 	noiseMaps := []models.Map{}
 
 	if err != nil {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	database.Database.Db.Find(&noiseMaps, "user_id = ?", id)
+	database.Database.Db.Find(&noiseMaps, "user_id = ?", user_id)
 
 	responseMaps := []Map{}
 
@@ -55,6 +57,34 @@ func GetNoiseMapsFromUser(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(responseMaps)
+}
+
+func DeleteNoiseMap(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	var noiseMap models.Map
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+	if err := FindNoiseMap(id, &noiseMap); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+	if err := database.Database.Db.Delete(&noiseMap).Error; err != nil {
+		return c.Status(404).JSON(err.Error())
+	}
+
+	return c.Status(200).SendString("Successfully deleted noise map")
+}
+
+func FindNoiseMap(id int, noiseMap *models.Map) error {
+	database.Database.Db.Find(&noiseMap, "id = ?", id)
+
+	if noiseMap.ID == 0 {
+		return errors.New("noise map does not exist")
+	}
+	return nil
 }
 
 func GenerateNoiseMap() string {
