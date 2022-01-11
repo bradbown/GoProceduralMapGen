@@ -31,7 +31,7 @@ func setUpRoutes(app *fiber.App) {
 	app.Put("/api/users/:id", routes.UpdateUser)
 	app.Delete("/api/users/:id", routes.DeleteUser)
 
-	app.Post("/api/maps", routes.CreateNoiseMap)
+	app.Post("/api/maps/:freq", routes.CreateNoiseMap)
 	app.Get("/api/maps/:user_id", routes.GetNoiseMapsFromUser)
 	app.Delete("api/maps/:id", routes.DeleteNoiseMap)
 }

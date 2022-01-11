@@ -1,6 +1,8 @@
 package procgen
 
 import (
+	"math"
+
 	"github.com/ojrac/opensimplex-go"
 )
 
@@ -21,10 +23,11 @@ func NewNoiseMap(seed int64, exponent float64, frequency float64) *NoiseMap {
 }
 
 func (n *NoiseMap) GetNoiseMap(x, y int) float64 {
-	freq := n.frequency
+	freq := 0.01
 	xNoise := float64(x) * freq
 	yNoise := float64(y) * freq
 
 	ret := n.noise.Eval2(xNoise, yNoise)
+	ret = math.Pow(ret, n.exponent)
 	return ret
 }

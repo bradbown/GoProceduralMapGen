@@ -3,6 +3,11 @@ package routes
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
+	"os"
+	"strings"
 
 	"github.com/bradbown/GoProceduralMapGen/database"
 	"github.com/bradbown/GoProceduralMapGen/models"
@@ -28,6 +33,13 @@ func CreateResponseMap(mapM models.Map) Map {
 }
 
 func CreateNoiseMap(c *fiber.Ctx) error {
+	param := c.Params("params")
+	params := strings.Split(param, "-")
+
+	size := params[0]
+	freq := params[1]
+	exponent := params[2]
+
 	var noiseMap models.Map
 
 	if err := c.BodyParser(&noiseMap); err != nil {
@@ -94,14 +106,32 @@ func GenerateNoiseMap(noiseMap *models.Map) string {
 	noise := procgen.NewNoiseMap(noiseMap.Seed, noiseMap.Exponent, noiseMap.Frequency)
 
 	var parsedNoiseMap string
+	rect := image.Rect(0, 0, noiseMap.Size, noiseMap.Size)
+	img := image.NewGray16(rect)
 
 	for x := 0; x < noiseMap.Size; x++ {
 		for y := 0; y < noiseMap.Size; y++ {
 			if x != 0 || (x != noiseMap.Size-1 && y != noiseMap.Size-1) {
 				parsedNoiseMap += ", "
 			}
-			parsedNoiseMap += fmt.Sprintf("%f", noise.GetNoiseMap(x, y))
+
+			val := noise.GetNoiseMap(x, y)
+			col := color.Gray16{uint16(val * 0xffff)}
+			img.Set(x, y, col)
+			parsedNoiseMap += fmt.Sprintf("%f", val)
+
 		}
+	}
+
+	f, err := os.OpenFile(noiseMap.Name+".png", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	err = png.Encode(f, img)
+	if err != nil {
+		panic(err)
 	}
 
 	return parsedNoiseMap
