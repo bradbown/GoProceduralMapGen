@@ -2,9 +2,11 @@ package routes
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/bradbown/GoProceduralMapGen/database"
 	"github.com/bradbown/GoProceduralMapGen/models"
+	"github.com/bradbown/GoProceduralMapGen/procgen"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -89,8 +91,18 @@ func FindNoiseMap(id int, noiseMap *models.Map) error {
 }
 
 func GenerateNoiseMap(noiseMap *models.Map) string {
+	noise := procgen.NewNoiseMap(noiseMap.Seed, noiseMap.Exponent, noiseMap.Frequency)
 
-	//Todo create noise map from values
+	var parsedNoiseMap string
 
-	return "test"
+	for x := 0; x < noiseMap.Size; x++ {
+		for y := 0; y < noiseMap.Size; y++ {
+			if x != 0 || (x != noiseMap.Size-1 && y != noiseMap.Size-1) {
+				parsedNoiseMap += ", "
+			}
+			parsedNoiseMap += fmt.Sprintf("%f", noise.GetNoiseMap(x, y))
+		}
+	}
+
+	return parsedNoiseMap
 }
