@@ -1,13 +1,14 @@
 package models
 
 type Map struct {
-	ID       uint    `json:"id" gorm:"primaryKey"`
-	UserID   uint    `json:"user_id" gorm:"foreignKey"`
-	Name     string  `json:"name"`
-	Seed     uint    `json:"seed"`
-	Alpha    float32 `json:"alpha"`
-	Octaves  uint    `json:"octaves"`
-	NoiseMap string  `json:"noise_map"`
+	ID        uint    `json:"id" gorm:"primaryKey"`
+	UserID    uint    `json:"user_id" gorm:"foreignKey"`
+	Name      string  `json:"name"`
+	Size      int     `json:"size"`
+	Seed      int64   `json:"seed"`
+	Exponent  float64 `json:"exponent"`
+	Frequency float64 `json:"frequency"`
+	NoiseMap  string  `json:"noise_map"`
 }
 
 // var (

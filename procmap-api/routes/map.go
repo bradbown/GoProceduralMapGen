@@ -9,19 +9,20 @@ import (
 )
 
 type Map struct {
-	ID       uint    `json:"id"`
-	UserID   uint    `json:"user_id"`
-	Name     string  `json:"name"`
-	Seed     uint    `json:"seed"`
-	Alpha    float32 `json:"alpha"`
-	Octaves  uint    `json:"octaves"`
-	NoiseMap string  `json:"noise_map"`
+	ID        uint    `json:"id"`
+	UserID    uint    `json:"user_id"`
+	Name      string  `json:"name"`
+	Size      int     `json:"size"`
+	Seed      int64   `json:"seed"`
+	Exponent  float64 `json:"exponent"`
+	Frequency float64 `json:"frequency"`
+	NoiseMap  string  `json:"noise_map"`
 }
 
 func CreateResponseMap(mapM models.Map) Map {
 
-	return Map{ID: mapM.ID, UserID: mapM.UserID, Name: mapM.Name, Seed: mapM.Seed,
-		Alpha: mapM.Alpha, Octaves: mapM.Octaves}
+	return Map{ID: mapM.ID, UserID: mapM.UserID, Name: mapM.Name, Size: mapM.Size,
+		Seed: mapM.Seed, Exponent: mapM.Exponent, Frequency: mapM.Frequency}
 }
 
 func CreateNoiseMap(c *fiber.Ctx) error {
@@ -31,7 +32,7 @@ func CreateNoiseMap(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-	noiseMap.NoiseMap = GenerateNoiseMap()
+	noiseMap.NoiseMap = GenerateNoiseMap(&noiseMap)
 
 	database.Database.Db.Create(&noiseMap)
 	responseMap := CreateResponseMap(noiseMap)
@@ -87,8 +88,9 @@ func FindNoiseMap(id int, noiseMap *models.Map) error {
 	return nil
 }
 
-func GenerateNoiseMap() string {
+func GenerateNoiseMap(noiseMap *models.Map) string {
 
 	//Todo create noise map from values
+
 	return "test"
 }
